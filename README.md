@@ -80,19 +80,27 @@ Then click **Generate**
 flatcam
 ```
 Go to **File > Open Gerber** and select the Gerber files you exported from KiCad.
+
 <img src="images/flatcam_open_gerber.png" alt="FlatCAM Open Gerber" width="720">
+
 Select all the gerber files and click **Open**. You will see them on the left panel and the canvas.
+
 <img src="images/flatcam_gerber_files.png" alt="FlatCAM Gerber Files" width="720">
+
 Do the following operations to these layers:
   - **Front:** Create new geometry using **Isolate**. Set **Passes** to ```5``` and **Overlap** to ```60.00%```. **Delete** the original gerber file.
   - **Back:** Create new geometry using **Isolate**. Set **Passes** to ```5``` and **Overlap** to ```60.00%```. **Delete** the original gerber file.
+
 <img src="images/flatcam_isolate.gif" alt="FlatCAM Isolate" width="720">
+
   - **F.Mask:** Leave as is.
   - **B.Mask:** Leave as is.
   - **F.SilkS:** Leave as is.
   - **B.SilkS:** Leave as is.
   - **Edge.Cuts:** Create new geometry using **Follow**. **Delete** the original gerber file.
+
 <img src="images/flatcam_follow.gif" alt="FlatCAM Follow" width="720">
+
   - **Drills:** Leave as is.
 
 <span style="color: #9a9a9a;">Go to *File > Export > Export SVG* and export the remaining gerber files and geometry as SVG manually one by one.</span>
@@ -127,14 +135,20 @@ Go to **File > Scripting > New Script**. **Delete** all template code. **Paste**
    }
    ```
 <img src="images/flatcam_script.png" alt="FlatCAM" width="720">
+
 <img src="images/flatcam_export.png" alt="FlatCAM" width="720">
+
 *You can save it for future use.*
 
 #### BslAppSimple
 Go to **File > Vector File** and import the SVG files one by one. Make sure to **Uncheck "Placed to center"** when open.
+
 <img src="images/bslapp_vector_file.png" alt="BslAppSimple">
+
 Then hatch the **F.Mask and B.Mask layers** using **Contour** pattern. And set **Type** to ```Contour``` and **Line** to ```0.04mm```
+
 <img src="images/bslapp_hatch.png" alt="BslAppSimple">
+
 
 ### 4.2 Laser Operation
 Before you start, make sure you have calibrated the laser according to the calibration test you did in [Section 3](#3-laser-calibration-test). Also clean the PCB surface with IPA and lint-free wipes.
