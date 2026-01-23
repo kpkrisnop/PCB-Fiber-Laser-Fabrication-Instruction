@@ -55,7 +55,9 @@ After you have designed the PCB, you can start the workflow.
 ### 4.1 File Preparation
 #### KiCad
 Export the Gerber files from KiCad. Go to **File > Plot...** and fill in these settings:
+
 <img src="images/kicad_plot.png" alt="KiCad Plot" width="720">
+
 Select the layers according to the number of layers in your PCB design. If you have one layer PCB, you don't need to select the back layers. In this example, I make 2-layer PCB, so I select:
   - Front
   - Back
@@ -68,7 +70,9 @@ Select the layers according to the number of layers in your PCB design. If you h
 Then click **Plot**
 Then click **Generate Drill Files...**
 Fill in the following settings:
+
 <img src="images/kicad_drill.png" alt="KiCad Drill" width="720">
+
 Then click **Generate**
 #### FlatCAM
 **Run FlatCAM in Terminal**
@@ -76,19 +80,19 @@ Then click **Generate**
 flatcam
 ```
 Go to **File > Open Gerber** and select the Gerber files you exported from KiCad.
-![FlatCAM](images/flatcam_open_gerber.png)
+<img src="images/flatcam_open_gerber.png" alt="FlatCAM Open Gerber" width="720">
 Select all the gerber files and click **Open**. You will see them on the left panel and the canvas.
-![FlatCAM](images/flatcam_gerber_files.png){height=357} ![FlatCAM](images/flatcam_canvas.png){height=357}
+<img src="images/flatcam_gerber_files.png" alt="FlatCAM Gerber Files" width="720">
 Do the following operations to these layers:
   - **Front:** Create new geometry using **Isolate**. Set **Passes** to ```5``` and **Overlap** to ```60.00%```. **Delete** the original gerber file.
   - **Back:** Create new geometry using **Isolate**. Set **Passes** to ```5``` and **Overlap** to ```60.00%```. **Delete** the original gerber file.
-![FlatCAM](images/flatcam_isolate.gif)
+<img src="images/flatcam_isolate.gif" alt="FlatCAM Isolate" width="720">
   - **F.Mask:** Leave as is.
   - **B.Mask:** Leave as is.
   - **F.SilkS:** Leave as is.
   - **B.SilkS:** Leave as is.
   - **Edge.Cuts:** Create new geometry using **Follow**. **Delete** the original gerber file.
-![FlatCAM](images/flatcam_follow.gif)
+<img src="images/flatcam_follow.gif" alt="FlatCAM Follow" width="720">
   - **Drills:** Leave as is.
 
 <span style="color: #9a9a9a;">Go to *File > Export > Export SVG* and export the remaining gerber files and geometry as SVG manually one by one.</span>
