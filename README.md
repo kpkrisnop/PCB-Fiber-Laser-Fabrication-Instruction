@@ -55,7 +55,7 @@ After you have designed the PCB, you can start the workflow.
 ### 4.1 File Preparation
 #### KiCad
 Export the Gerber files from KiCad. Go to **File > Plot...** and fill in these settings:
-![KiCad Plot](images/kicad_plot.png){width=720}
+<img src="images/kicad_plot.png" alt="KiCad Plot" width="720">
 Select the layers according to the number of layers in your PCB design. If you have one layer PCB, you don't need to select the back layers. In this example, I make 2-layer PCB, so I select:
   - Front
   - Back
@@ -68,7 +68,7 @@ Select the layers according to the number of layers in your PCB design. If you h
 Then click **Plot**
 Then click **Generate Drill Files...**
 Fill in the following settings:
-![KiCad Drill](images/kicad_drill.png)
+<img src="images/kicad_drill.png" alt="KiCad Drill" width="720">
 Then click **Generate**
 #### FlatCAM
 **Run FlatCAM in Terminal**
@@ -122,15 +122,15 @@ Go to **File > Scripting > New Script**. **Delete** all template code. **Paste**
       }
    }
    ```
-![FlatCAM](images/flatcam_script.png)
-![FlatCAM](images/flatcam_export.png)
+<img src="images/flatcam_script.png" alt="FlatCAM" width="720">
+<img src="images/flatcam_export.png" alt="FlatCAM" width="720">
 *You can save it for future use.*
 
 #### BslAppSimple
 Go to **File > Vector File** and import the SVG files one by one. Make sure to **Uncheck "Placed to center"** when open.
-![BslAppSimple](images/bslapp_vector_file.png)
+<img src="images/bslapp_vector_file.png" alt="BslAppSimple">
 Then hatch the **F.Mask and B.Mask layers** using **Contour** pattern. And set **Type** to ```Contour``` and **Line** to ```0.04mm```
-![BslAppSimple](images/bslapp_hatch.png)
+<img src="images/bslapp_hatch.png" alt="BslAppSimple">
 
 ### 4.2 Laser Operation
 Before you start, make sure you have calibrated the laser according to the calibration test you did in [Section 3](#3-laser-calibration-test). Also clean the PCB surface with IPA and lint-free wipes.
