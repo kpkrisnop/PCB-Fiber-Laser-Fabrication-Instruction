@@ -96,7 +96,7 @@ The fabrication process involves the following key stages:
   - **Save** the both-layers settings to **Pen 2** and name it `mask`.
   - **Note:**
     - Every board may have different thickness of solder mask, so you need to calibrate the settings for each face of the board.
-    - You can use my test files to find the best settings for your board. (e.g. [Laser Calibration Test](fiber_laser_calibration/test_files)
+    - You can use my test files to find the best settings for your board. (e.g. [Laser Calibration Test](fiber_laser_calibration/test_files))
 - **Black Paper Cutting:**
   - **Preparation:**
     - Draw a simple rectangle in the BslAppSimple.
@@ -116,7 +116,7 @@ The fabrication process involves the following key stages:
   - Import my tools database by going to **Options > Tools Database > Import DB**. [Download My Tools Database](flatcam_tools_database)
   - Show all tools by right-click on the tool bar and select all the tools.
 
-## 6. Workflow
+## 6. File Preparation
 
 After you have designed the PCB, you can start the workflow.
 
@@ -124,9 +124,7 @@ This is my design. It is simple a 2-layer board with mounting components and sil
 
 <img src="images/kicad_design.png" alt="KiCad Design" width="480" style="border-radius: 4px;">
 
-### 6.1 File Preparation
-
-#### KiCad
+### KiCad
 
 Export the Gerber files in KiCad. Go to **File > Plot...** and fill in these settings:
 
@@ -151,58 +149,73 @@ Fill in these settings:
 
 Then click **Generate**
 
-#### FlatCAM
+### FlatCAM
 
-##### STEP 1 - Import Files
+### STEP 1 - Import Files
 
 1. Open FlatCAM and **Import** all the **Gerber** files and **Drill** files.
+
    <img src="images/flatcam_import_files.png" alt="FlatCAM Import Files" width="480" style="border-radius: 10px;">
 
-##### STEP 2 - Prepare `Edge_Cuts`
+### STEP 2 - Prepare `Edge_Cuts`
 
 1. Create a **Follow** geometry object with `Edge_Cuts.gbr` using the **Follow plugin**.
+
    <img src="images/flatcam_follow.png" alt="FlatCAM Follow Edge Cuts" width="480" style="border-radius: 10px;">
+
 2. **Convert** the newly created geometry object (`Edge_Cuts_follow`) into a gerber object by going to **Edit > Conversion > Convert Any to Gerber**
+
    <img src="images/flatcam_convert.png" alt="FlatCAM Follow Edge Cuts" width="480" style="border-radius: 10px;">
+
    You will get a filled shape named `Edge_Cuts_follow_conv`. Then, **Delete** `Edge_Cuts.gbr` and `Edge_Cuts_follow`.
 
-##### STEP 3 - Board Placement
+### STEP 3 - Board Placement
 
 1. Move all objects to origin by **Sellect All**, right-click and **Move2Origin**
 2. Create a blank board to help placing the board correctly and optimally.
    1. Go to **File > New > Geometry** (shortcut: **N**)
    2. Go to **Edit > Edit Object** (shortcut: **E**)
    3. Use **Rectangle Tool** (shortcut: **R**) to draw a rectangle exectly the size of your `Un-Cut PCB`. (e.g. 100mm x 150mm)
+
       <img src="images/flatcam_rectangle.png" alt="FlatCAM Follow Edge Cuts" width="480" style="border-radius: 10px;">
+
    4. Use **Buffer Tool** to create inner offset exectly the size of your `Clamping Space`. (e.g. 2mm)
+
       <img src="images/flatcam_buffer.png" alt="FlatCAM Follow Edge Cuts" width="480" style="border-radius: 10px;">
+
    5. **Exit** the editor and **Rename** the geometry as `blank`.
    6. Move all objects except `blank` inwards by the distance of `(Clamping Space + Clearance + Cutting Bit Diameter) x 2` in both _X_ and _Y_ direction. (e.g. `(2mm + 1mm + 2mm) x 2 = 10mm`)
+
       <img src="images/flatcam_move.png" alt="FlatCAM Follow Edge Cuts" width="480" style="border-radius: 10px;">
 
-##### STEP 4 - Create Outer Cut
+### STEP 4 - Create Outer Cut
 
 1. Create a new gerber object by going to **File > New > Gerber** (shortcut: **B**)
 2. Go to **Edit > Edit Object** (shortcut: **E**)
 3. Use **Region Tool** to draw a rectangle with an offset of `Clamping Space + Clearance + Cutting Bit Diameter`. You can extend the board further than this distance if the left over is unusable any way.
+
    <img src="images/flatcam_region.png" alt="FlatCAM Follow Edge Cuts" width="480" style="border-radius: 10px;">
+
 4. **Exit** the editor and **Rename** it as `outer`
 
-##### STEP 5 - Create Alignment Drill Hole
+### STEP 5 - Create Alignment Drill Hole
 
 1. Create a new excellon object by going to **File > New > Excellon** (shortcut: **L**)
 2. Go to **Edit > Edit Object** (shortcut: **E**)
 3. Use **Add Drill Tool** to add 4 drill holes on each corner of the `outer`, `Clamping Space` distance away from the corners.
 4. Set the tool diameter to `0.8mm`
 5. **Exit** the editor and **Rename** it as `pin`
+
    <img src="images/flatcam_pin.png" alt="FlatCAM Follow Edge Cuts" width="480" style="border-radius: 10px;">
 
-##### STEP 6 - Create Toolpath Geometry
+### STEP 6 - Create Toolpath Geometry
 
 1. Use **Cutout** plugin to create toolpath geometry for `Edge_Cuts_follow_conv`
 2. Click **Pick from DB** and select the cutting tool from the database and click **Transfer the Tool**. (e.g. `cutout`)
+
    <img src="images/flatcam_cutout.png" alt="FlatCAM Cutout" width="480" style="border-radius: 10px;">
    <img src="images/flatcam_cutout_database.png" alt="FlatCAM Cutout" width="480" style="border-radius: 10px;">
+
    My tool settings for 1.5mm thick FR4 PCB:
    - **`Tool`**: `cutout`
    - **`Tool Dia`**: `2.0000mm`
@@ -217,23 +230,27 @@ Then click **Generate**
    - **`Feedrate Z`**: `120.0000mm/min`
    - **`Dwell`**: `True`
    - **`Dwell time`**: `3 (Note: In Mach3, 3 means 3 seconds. Adjust based on your CNC control software.)`
+
 3. Click **Generate Geometry**
 4. Do the same to `outer`
 5. At the end, you should have 2 toolpath geometries: `Edge_Cuts_follow_conv_cutout` and `outer_cutout`.
 
-##### STEP 7 - Generate Isolate Geometry
+### STEP 7 - Generate Isolate Geometry
 
 1. Click on **Isolate** plugin to create laser toolpath geometry for `F_Copper.gbr`
+
    <img src="images/flatcam_isolate.png" alt="FlatCAM Isolate" width="480" style="border-radius: 10px;">
+
    My settings:
    - **`Diameter`**: `0.1000mm`
    - **`Passes`**: `7`
    - **`Overlap`**: `60.0000%`
+
 2. Click **Generate Geometry**
 3. Do the same to `B_Copper.gbr`
 4. At the end, you should have 2 toolpath geometries: `F_Copper_iso_combined` and `B_Copper_iso_combined`.
 
-##### STEP 8 - Export SVG Files
+### STEP 8 - Export SVG Files
 
 1. **Select** the following objects:
    - `outer`
@@ -268,16 +285,18 @@ Then click **Generate**
    <img src="images/flatcam_export.png" alt="FlatCAM Export" width="480" style="border-radius: 10px;">
    <img src="images/flatcam_export_success.png" alt="FlatCAM Export Success" width="480" style="border-radius: 10px;">
 
-##### STEP 9 - Generate Cutting G-code Objects
+### STEP 9 - Generate Cutting G-code Objects
 
 1. Click on **Milling** plugin
 2. Select `outer_cutout`
 3. Click on **Generate CNCJob objects** button
+
    <img src="images/flatcam_cutout_cnc.png" alt="FlatCAM Cutout CNC" width="480" style="border-radius: 10px;">
+
 4. Do the same to `Edge_Cuts_follow_conv_cutout`
 5. At the end, you should have 2 G-code objects: `outer_cutout_cnc`, `Edge_Cuts_follow_conv_cutout_cnc`.
 
-##### STEP 10 - Generate Drilling G-code Objects
+### STEP 10 - Generate Drilling G-code Objects
 
 1. Click on **Drilling** plugin
 2. Select `pin`
@@ -289,108 +308,117 @@ Then click **Generate**
    - **`Dwell`**: `True`
    - **`Dwell time`**: `3 (Note: In Mach3, 3 means 3 seconds. Adjust based on your CNC control software.)`
 4. Click on **Generate CNCJob objects** button
+
    <img src="images/flatcam_drill_cnc.png" alt="FlatCAM Drill CNC" width="480" style="border-radius: 10px;">
+
 5. Do the same to `PTH.drl` and/or `NPTH.drl`. Select the correct drill size for each and make sure that all the drills holes with the same size are selected before clicking **Generate CNCJob objects** button.
 6. At the end, you should have 2 (or more if you have more than 1 hole size) G-code objects: `pin_cnc`, and `PTH.drl_cnc` and/or `NPTH.drl_cnc`.
 
-##### STEP 11 - Export G-code Objects
+### STEP 11 - Export G-code Objects
 
 1. **Export** all the G-code objects by selecting all of them and right-click batch save.
+
    <img src="images/flatcam_gcode.png" alt="FlatCAM G-code Export" width="480" style="border-radius: 10px;">
 
-#### BslAppSimple
+### BslAppSimple
 
-##### STEP 1 - Import SVG Files
+### STEP 1 - Import SVG Files
 
 1. Import the svg files by going to **File > Vector File** and select the svg files, one by one. Make sure you uncheck **Place to Origin**.
+
    <img src="images/bslapp_import.png" alt="BslAppSimple Import" width="480" style="border-radius: 10px;">
+
 2. Select all and **Place to Origin**
+
    <img src="images/bslapp_origin.png" alt="BslAppSimple Place to Origin" width="480" style="border-radius: 10px;">
 
-##### STEP 2 - Hatching
+### STEP 2 - Hatching
 
 1. Select `F_mask`
 2. Click on **Hatching**
+
    <img src="images/bslapp_hatch.png" alt="BslAppSimple Hatching" width="480" style="border-radius: 10px;">
+
    My Settings:
    - **`Pattern`**: `ZigZag`
    - **`Walk Around`**: `True`
    - **`Cross Fill`**: `True`
    - **`Line`**: `0.04mm`
    - **`Margins`**: `-0.2mm`
+
 3. **Rename** it `F_mask`
 4. Click **OK**. Then, do the same for `B_mask`.
 
-##### STEP 3 - Offset
+### STEP 3 - Offset
 
 1. Select `outer` and go to **Edit > Offset**.
 2. Offset `-0.1mm` to compensate for laser burn expansion.
 3. Select **Delete Old Curve** and left-click to offset.
 
-##### STEP 4 - Save
+### STEP 4 - Save
 
 1. Save the file
 
-### 6.2 Operation
+## 7. Operation
 
-##### STEP 1 - CNC Preparation
+### STEP 1 - CNC Preparation
 
-- [ ] Make sure the un-cut board is **Flat** and **Level** to the bed.
-- [ ] **Insert** `0.8mm Carbide Drilling Bit`.
-- [ ] Set the CNC coordinate **Origin** exactly to the **Bottom-Left corner**, on the **Top surface** of the board.
-- [ ] **Clamp** the board on the edge.
+1. Make sure the un-cut board is **Flat** and **Level** to the bed.
+2. **Insert** `0.8mm Carbide Drilling Bit`.
+3. Set the CNC coordinate **Origin** exactly to the **Bottom-Left corner**, on the **Top surface** of the board.
+4. **Clamp** the board on the edge.
 
-##### STEP 2 - Cut `pin` then `outer`
+### STEP 2 - Cut `pin` then `outer`
 
-- [ ] **Run** `pin_cnc`.
-- [ ] Insert `Carbide Cutting Bit (e.g. 2.0mm)`.
-- [ ] **Re-zero Z ONLY** so that the cutting bit just touches the **Top surface** of the board.
-- [ ] **Run** `outer_cutout_cnc`.
-- [ ] Take the board out to **Remove** the left-over **Tabs**.
+1. **Run** `pin_cnc`.
+2. Insert `Carbide Cutting Bit (e.g. 2.0mm)`.
+3. **Re-zero Z ONLY** so that the cutting bit just touches the **Top surface** of the board.
+4. **Run** `outer_cutout_cnc`.
+5. Take the board out to **Remove** the left-over **Tabs**.
 
-##### STEP 3 - Laser Cutting Preparation
+### STEP 3 - Laser Cutting Preparation
 
-- [ ] Tape a piece of **Black Paper** to a sheet of sacrificing material (e.g. MDF, Acrylic) and tape it securely to the laser bed.
-- [ ] Open **BslAppSimple** and use the **Select Mark** mode.
-- [ ] **Select** the `outer` and start laser cutting with **Pen 3** (Paper settings).
-- [ ] **Registration Note:** The black paper serves as a fixed registration jig. Test fit the board; it must fit perfectly without wiggling. This ensures that when you flip the board, the center point remains registered with the software origin.
+1. Tape a piece of **Black Paper** to a sheet of sacrificing material (e.g. MDF, Acrylic) and tape it securely to the laser bed.
+2. Open **BslAppSimple** and use the **Select Mark** mode.
+3. **Select** the `outer` and start laser cutting with **Pen 3** (Paper settings).
+4. **Registration Note:** The black paper serves as a fixed registration jig. Test fit the board; it must fit perfectly without wiggling. This ensures that when you flip the board, the center point remains registered with the software origin.
 
-##### STEP 4 - Copper Traces Etching
+### STEP 4 - Copper Traces Etching
 
-- [ ] Select and cut `F_Copper_iso_combined`.
-- [ ] Check continuity with a multimeter before removing the board.
-- [ ] Flip the board vertically in the black paper jig.
-- [ ] Select all objects and flip them vertically in the software.
-- [ ] Select and cut `B_Copper_iso_combined`.
-- [ ] Check continuity with a multimeter.
+1. Select and cut `F_Copper_iso_combined`.
+2. Check continuity with a multimeter before removing the board.
+3. Flip the board vertically in the black paper jig.
+4. Select all objects and flip them vertically in the software.
+5. Select and cut `B_Copper_iso_combined`.
+6. Check continuity with a multimeter.
 
-##### STEP 5 - Apply Solder Mask
+### STEP 5 - Apply Solder Mask
 
-- [ ] Clean the board with IPA.
-- [ ] Apply bottom solder mask (lighter color, for silkscreen contrast).
-- [ ] Cure bottom layer until dry to the touch.
-- [ ] Apply top solder mask over the bottom layer (darker color, for mask).
-- [ ] Cure top layer until dry to the touch.
-- [ ] Mark the board with a marker to indicate the orientation. **(CRITICAL)**.
-- [ ] Repeat on the other side.
+1. Clean the board with IPA.
+2. Apply bottom solder mask (lighter color, for silkscreen contrast).
+3. Cure bottom layer until dry to the touch.
+4. Apply top solder mask over the bottom layer (darker color, for mask).
+5. Cure top layer until dry to the touch.
+6. Mark the board with a marker to indicate the orientation.
+7. Repeat on the other side.
 
-##### STEP 6 - Remove Solder Mask
+### STEP 6 - Remove Solder Mask
 
-- [ ] Place the board on the front side in the correct orientation.
-- [ ] Run `F_mask` on the front side (ablates both layers for pads).
-- [ ] Run `F_silkscreen` on the front side (ablates top layer only to reveal contrast color).
-- [ ] Flip the board vertically in the laser bed and in the software.
-- [ ] Run `B_mask` on the back side.
-- [ ] Run `B_silkscreen` on the back side.
+1. Place the board on the front side in the correct orientation.
+2. Run `F_mask` on the front side (ablates both layers for pads).
+3. Run `F_silkscreen` on the front side (ablates top layer only to reveal contrast color).
+4. Flip the board vertically in the laser bed and in the software.
+5. Run `B_mask` on the back side.
+6. Run `B_silkscreen` on the back side.
 
-##### STEP 7 - CNC Finishing Cut Preparation
+### STEP 7 - CNC Finishing Cut
 
-- [ ] Make sure the board is **Flat** and **Level** to the bed.
-- [ ] **Insert** `Carbide Drilling Bit` and run drilling programs (e.g. `PTH.drl_cnc`).
-- [ ] **Insert** `Carbide Cutting Bit` and run `Edge_Cuts_follow_conv_cutout_cnc`.
-- [ ] Take the board out to **Remove** the left-over **Tabs**.
+1. **Insert** 4 pins into the holes on the board to register it to the bed.
+2. **Insert** `Carbide Drilling Bit` and run drilling programs (e.g. `PTH.drl_cnc`).
+3. **Insert** `Carbide Cutting Bit` and run `Edge_Cuts_follow_conv_cutout_cnc`.
+4. Take the board out to **Remove** the left-over **Tabs**.
 
-##### Finished PCB:
+## Finished PCB
 
 <img src="images/finished_pcb.png" alt="Finished PCB" width="480" style="border-radius: 10px;">
 
