@@ -10,10 +10,10 @@ The fabrication process involves the following key stages:
 
 1.  **File Preparation**: Exporting Gerber files from KiCad and converting them into laser-ready vector formats (SVG) using FlatCAM.
 2.  **Copper Etching**: Using the fiber laser to ablate unwanted copper, explicitly isolating the circuit traces.
-3.  **Solder Mask & Silkscreen**: Applying a generic UV-curable solder mask paint over the entire board. After curing, the fiber laser is used to selectively remove (ablate) the paint from soldering pads, serving as a digital alternative to traditional photo-lithography. There are two layers of solder mask in a side of a PCB, one for the silkscreen which lies underneath and one on the top for the solder mask.
+3.  **Solder Mask & Silkscreen**: Using the **Dual-Color Contrast Method**. This involves applying two layers of UV-curable solder mask paint (e.g., white then green). The laser selectively ablates the top layer to reveal the bottom color for silkscreen markings, or ablates both layers to reveal soldering pads.
 4.  **CNC Router**: Drilling holes and cutting the board to shape.
 
-**Note:** This SOP doesn't cover how to make plated holes, but there are a bunch of methods to get around it. For example, soldering wires through the holes to connect the traces on the top and bottom layers. Or you can use small rivets or just move the components up from the board a little bit and solder the pins directly to the traces on the top or bottom layer.
+**Note:** This SOP doesn't cover how to make plated holes, but there are a bunch of methods to get around it. For example, using small **copper rivets** for a professional finish, soldering wires through the holes to connect the traces, or lifting components slightly off the board to solder pins directly to the top layer.
 
 ### Prerequisites
 
@@ -26,26 +26,35 @@ The fabrication process involves the following key stages:
 
 - [Homemade PCBs with Fiber Laser - 0.1mm Clearance (Electronoobs)](https://www.youtube.com/watch?v=PoYcjyghDx4)
 
-## 2. Requirements
+## 2. Safety Precautions
+
+**⚠️ CRITICAL SAFETY WARNINGS:**
+
+- **Eye Protection:** Fiber lasers are invisible and extremely dangerous. You **MUST** wear OD6+ safety goggles rated for 1064nm wavelength at all times during operation.
+- **Ventilation:** Ablating FR4 (fiberglass) and UV resins produces **toxic fumes and carcinogenic dust**. A high-quality fume extractor or forced outdoor ventilation is mandatory.
+- **Fire Hazard:** The laser can ignite the "Black Paper" alignment jig or debris. Never leave the laser unattended while firing.
+
+## 3. Requirements
 
 ### Materials
 
 - **PCB Material:** FR1 or FR4 PCB board.
-- **Solder Mask:** UV Curable Solder Mask. Get two colors if you are going to plot silkscreen layer.
-  (e.g. green and white)
-- **Thick Black Paper:** For aligning the PCB on the Fiber Laser bed
-- **Cleaning Supplies:** Isopropyl alcohol (IPA), lint-free wipes
+- **Solder Mask:** UV Curable Solder Mask. Get two colors for the Dual-Color Contrast Method (e.g. green and white).
+- **Via Rivets:** For connecting top and bottom layers (optional but recommended).
+- **Thick Black Paper:** For creating the alignment jig.
+- **Cleaning Supplies:** Isopropyl alcohol (IPA), lint-free wipes.
 
 ### Tools
 
-- **Fiber Laser:** For etching copper and solder mask layer
-- **CNC Router:** For cutting and drilling
-- **UV Light Source:** For curing solder mask layer
-- **Silkscreen Mesh:** For applying solder mask and silkscreen.
-- **Fine Grid Sand Paper:** For cleaning the PCB
-- **Drill Bit:** For drilling holes (e.g. 0.8mm, 1.0mm, etc.)
-- **Cutting Bit:** For cutting the board (e.g. 2.0mm, 2.4mm, etc.)
-- **0.8mm Pins:** For aligning the board to the CNC bed. Found in 2.54mm pitch male pin header
+- **Fiber Laser:** For etching copper and solder mask layers.
+- **Safety Gear:** OD6+ 1064nm protective goggles and a Fume Extractor.
+- **CNC Router:** For cutting and drilling.
+- **UV Light Source:** For curing solder mask layers.
+- **Silkscreen Mesh:** For applying solder mask evenly.
+- **Fine Grid Sand Paper:** For cleaning the PCB.
+- **Drill Bits:** (e.g. 0.8mm, 1.0mm, etc.)
+- **Cutting Bit:** (e.g. 2.0mm, 2.4mm, etc.)
+- **0.8mm Pins:** For aligning the board to the CNC bed.
 
 ### Software (My case)
 
@@ -54,7 +63,7 @@ The fabrication process involves the following key stages:
 - **Fiber Laser Software:** BslAppSimple 5.2
 - **CNC Router Software:** Mach3
 
-## 3. Laser Calibration Test
+## 4. Laser Calibration Test
 
 - **Copper Etching Test:**
   - **Preparation:**
@@ -93,20 +102,21 @@ The fabrication process involves the following key stages:
     - Draw a simple rectangle in the BslAppSimple.
     - Place the black paper on the laser bed.
     - Adjust the focus of the laser.
+    - **⚠️ Caution:** Watch for fire hazards as the laser can ignite paper debris.
     - Run the program.
   - **Observation:**
     - Look for the one that cuts the black paper cleanly in one pass with the fastest speed possible.
     - My personal settings: `Power: 100%`, `Speed: 100mm/s`, `Frequency: 30kHz`,`Passes: 1`
   - **Save** the settings to **Pen 3** and name it `paper`.
 
-## 4.Software Setup
+## 5. Software Setup
 
 - **KiCAD:** Before start designing the PCB, import my design rules into you KiCAD project by going to **File > Board Setup... > Import Settings from Another Board...** find the KiCAD file and **Sellect All**, then **Import Settings**. [Download My Design Rules](KiCAD_Custom_DRC_Rules_for_KPPCB)
 - **FlatCam:**
   - Import my tools database by going to **Options > Tools Database > Import DB**. [Download My Tools Database](flatcam_tools_database)
   - Show all tools by right-click on the tool bar and select all the tools.
 
-## 5.Workflow
+## 6. Workflow
 
 After you have designed the PCB, you can start the workflow.
 
@@ -114,7 +124,7 @@ This is my design. It is simple a 2-layer board with mounting components and sil
 
 <img src="images/kicad_design.png" alt="KiCad Design" width="480" style="border-radius: 4px;">
 
-### 5.1 File Preparation
+### 6.1 File Preparation
 
 #### KiCad
 
@@ -206,7 +216,7 @@ Then click **Generate**
    - **`Feedrate X-Y`**: `600.0000mm/min`
    - **`Feedrate Z`**: `120.0000mm/min`
    - **`Dwell`**: `True`
-   - **`Dwell time`**: `3 (Depend on your CNC machine. Some machine 3 means 3 milliseconds, some means 3 seconds)`
+   - **`Dwell time`**: `3 (Note: In Mach3, 3 means 3 seconds. Adjust based on your CNC control software.)`
 3. Click **Generate Geometry**
 4. Do the same to `outer`
 5. At the end, you should have 2 toolpath geometries: `Edge_Cuts_follow_conv_cutout` and `outer_cutout`.
@@ -277,7 +287,7 @@ Then click **Generate**
    - **`Cut Z`**: `-8.0000mm`
    - **`Feedrate Z`**: `120.0000mm/min`
    - **`Dwell`**: `True`
-   - **`Dwell time`**: `3 (Depend on your CNC machine. Some machine 3 means 3 milliseconds, some means 3 seconds)`
+   - **`Dwell time`**: `3 (Note: In Mach3, 3 means 3 seconds. Adjust based on your CNC control software.)`
 4. Click on **Generate CNCJob objects** button
    <img src="images/flatcam_drill_cnc.png" alt="FlatCAM Drill CNC" width="480" style="border-radius: 10px;">
 5. Do the same to `PTH.drl` and/or `NPTH.drl`. Select the correct drill size for each and make sure that all the drills holes with the same size are selected before clicking **Generate CNCJob objects** button.
@@ -321,64 +331,64 @@ Then click **Generate**
 
 1. Save the file
 
-### 5.2 Operation
+### 6.2 Operation
 
 ##### STEP 1 - CNC Preparation
 
-1. Make sure the un-cut board in **Flat** and **Level** to the bed
-2. **Insert** `0.8mm Carbide Drilling Bit`
-3. Set the CNC coordinate **Origin** exactly to the **Bottom-Left corner**, on the **Top surface** of the board.
-4. **Clamp** the board on the edge
+- [ ] Make sure the un-cut board is **Flat** and **Level** to the bed.
+- [ ] **Insert** `0.8mm Carbide Drilling Bit`.
+- [ ] Set the CNC coordinate **Origin** exactly to the **Bottom-Left corner**, on the **Top surface** of the board.
+- [ ] **Clamp** the board on the edge.
 
 ##### STEP 2 - Cut `pin` then `outer`
 
-1. **Run** `pin_cnc`
-2. Insert `Carbide Cutting Bit (e.g. 2.0mm)`
-3. **Re-zero Z ONLY** so that the cutting bit just touch the **Top surface** of the board
-4. **Run** `outer_cutout_cnc`
-5. Take the board out to **Remove** the left-over **Tabs**
+- [ ] **Run** `pin_cnc`.
+- [ ] Insert `Carbide Cutting Bit (e.g. 2.0mm)`.
+- [ ] **Re-zero Z ONLY** so that the cutting bit just touches the **Top surface** of the board.
+- [ ] **Run** `outer_cutout_cnc`.
+- [ ] Take the board out to **Remove** the left-over **Tabs**.
 
 ##### STEP 3 - Laser Cutting Preparation
 
-1. Tape a piece of **Black Paper** to a sheet of sacrificing laser-impenetrable material (e.g. MDF, Acrylic, etc.) and tape it on the laser bed.
-2. Open **BslAppSimple** and use the **Select Mark** mode
-3. **Select** the `outer` and start laser cutting with **Pen 3** mode
-4. Test fit the board by placing it into the laser cut on the black paper and check if it wiggles. If it does, shrink the offset and repeat untill fit perfectly.
+- [ ] Tape a piece of **Black Paper** to a sheet of sacrificing material (e.g. MDF, Acrylic) and tape it securely to the laser bed.
+- [ ] Open **BslAppSimple** and use the **Select Mark** mode.
+- [ ] **Select** the `outer` and start laser cutting with **Pen 3** (Paper settings).
+- [ ] **Registration Note:** The black paper serves as a fixed registration jig. Test fit the board; it must fit perfectly without wiggling. This ensures that when you flip the board, the center point remains registered with the software origin.
 
 ##### STEP 4 - Copper Traces Etching
 
-1. Cut the `F_Copper_iso_combined`
-2. Check the continuity of the copper traces with a multimeter before removing the board from the laser bed
-3. Flip the board vertically in the laser bed
-4. Select all objects and flip them vertically in the software
-5. Cut the `B_Copper_iso_combined`
-6. Check the continuity of the copper traces with a multimeter before removing the board from the laser bed
+- [ ] Select and cut `F_Copper_iso_combined`.
+- [ ] Check continuity with a multimeter before removing the board.
+- [ ] Flip the board vertically in the black paper jig.
+- [ ] Select all objects and flip them vertically in the software.
+- [ ] Select and cut `B_Copper_iso_combined`.
+- [ ] Check continuity with a multimeter.
 
 ##### STEP 5 - Apply Solder Mask
 
-1. Clean the board with IPA
-2. Apply bottom solder mask (light color)
-3. Cure bottom solder mask untill it is dry to the touch
-4. Apply top solder mask over the bottom solder mask (dark color)
-5. Cure top solder mask untill it is dry to the touch
-6. Mark the board with a marker to indicate the orientation. **(CRITICAL)**
-7. Repeat on the other side
+- [ ] Clean the board with IPA.
+- [ ] Apply bottom solder mask (lighter color, for silkscreen contrast).
+- [ ] Cure bottom layer until dry to the touch.
+- [ ] Apply top solder mask over the bottom layer (darker color, for mask).
+- [ ] Cure top layer until dry to the touch.
+- [ ] Mark the board with a marker to indicate the orientation. **(CRITICAL)**.
+- [ ] Repeat on the other side.
 
 ##### STEP 6 - Remove Solder Mask
 
-1. Place the board on the front side in the correct orientation
-2. Run `F_mask` on the front side
-3. Run `F_silkscreen` on the front side
-4. Flip the board vertically in the laser bed and in the software
-5. Run `B_mask` on the back side
-6. Run `B_silkscreen` on the back side
+- [ ] Place the board on the front side in the correct orientation.
+- [ ] Run `F_mask` on the front side (ablates both layers for pads).
+- [ ] Run `F_silkscreen` on the front side (ablates top layer only to reveal contrast color).
+- [ ] Flip the board vertically in the laser bed and in the software.
+- [ ] Run `B_mask` on the back side.
+- [ ] Run `B_silkscreen` on the back side.
 
 ##### STEP 7 - CNC Finishing Cut Preparation
 
-1. Make sure the board is **Flat** and **Level** to the bed
-2. **Insert** `Carbide Drilling Bit` and run the drilling program (e.g. `PTH.drl_cnc`) according the the drill bit size.
-3. **Insert** `Carbide Cutting Bit` and run `Edge_Cuts_follow_conv_cutout_cnc`
-4. Take the board out to **Remove** the left-over **Tabs**
+- [ ] Make sure the board is **Flat** and **Level** to the bed.
+- [ ] **Insert** `Carbide Drilling Bit` and run drilling programs (e.g. `PTH.drl_cnc`).
+- [ ] **Insert** `Carbide Cutting Bit` and run `Edge_Cuts_follow_conv_cutout_cnc`.
+- [ ] Take the board out to **Remove** the left-over **Tabs**.
 
 ##### Finished PCB:
 
