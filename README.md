@@ -21,6 +21,7 @@ The fabrication process involves the following key stages:
 - You have installed the required software. (e.g. KiCad 9.0, FlatCAM, BslAppSimple) If not see the installation guide at the end of this document.
 - You know how to use Fiber Laser and basics of laser control software (BslAppSimple).
 - You know how to use CNC Router and basics of CNC control software (Mach3).
+- All machines required should be well-calibrated.
 
 ### Reference Video
 
@@ -74,7 +75,6 @@ The fabrication process involves the following key stages:
     - Run the program.
   - **Observation:**
     - Look for the one that ablates the most copper layer.
-    - My personal settings: `Power: 100%`, `Speed: 1000mm/s`, `Frequency: 20kHz`,`Passes: 20`
   - **Save** the settings to **Pen 0** and name it `copper`.
 
 - **Solder Mask Etching:**
@@ -90,8 +90,6 @@ The fabrication process involves the following key stages:
     - Run the programs one by one.
   - **Observation:**
     - Look for the one that ablates the solder mask layer cleanly.
-    - My personal settings for ablating only top layer: `Power: 10%`, `Speed: 1000mm/s`, `Frequency: 50kHz`, `Passes: 1`
-    - My personal settings for ablating both layers: `Power: 60%`, `Speed: 1000mm/s`, `Frequency: 50kHz`, `Passes: 1`
   - **Save** the top-layer settings to **Pen 1** and name it `silk`.
   - **Save** the both-layers settings to **Pen 2** and name it `mask`.
   - **Note:**
@@ -108,6 +106,14 @@ The fabrication process involves the following key stages:
     - Look for the one that cuts the black paper cleanly in one pass with the fastest speed possible.
     - My personal settings: `Power: 100%`, `Speed: 100mm/s`, `Frequency: 30kHz`,`Passes: 1`
   - **Save** the settings to **Pen 3** and name it `paper`.
+
+## My Settings
+
+| Pen No. | Name    | Power (%) | Speed (mm/s) | Frequency (kHz) |
+| ------- | ------- | --------- | ------------ | --------------- |
+| 1       | isolate | 100       | 1000         | 20              |
+| 2       | paper   | 100       | 100          | 30              |
+| 3       | mask    | 50        | 1000         | 40              |
 
 ## 5. Software Setup
 
@@ -435,7 +441,7 @@ Then click **Generate**
 - Website: [Open](http://flatcam.org/download)
 - Windows: [Open Download Page](https://bitbucket.org/jpcgt/flatcam/downloads/)
 - MacOS: [Open Download Page](https://github.com/tomoyanonymous/homebrew-flatcam) _In MacOS, I experienced minor bugs in the program, specifically in `flatcam-evo`. Nevertheless, I quickly debugged using the error messages in the program and fixed these bugs using AI (e.g. Gemini, ChatGPT, Claude)._
-- MacOS My Improved Version: [Open Download Page](https://github.com/KP-Krisnop/homebrew-flatcam-evo) (Recommended)
+- My Improved Version: [Open Download Page](https://github.com/kpkrisnop/flatcam) (Recommended)
 
 ### BslAppSimple
 
