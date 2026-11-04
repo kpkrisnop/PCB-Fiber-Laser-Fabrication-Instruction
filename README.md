@@ -245,7 +245,7 @@ Then click **Generate**
 4. Do the same to `outer`
 5. At the end, you should have 2 toolpath geometries: `Edge_Cuts_follow_conv_cutout` and `outer_cutout`.
 
-**Sharper outer corners:** a rectangular cutout rounds the tool path's corners by margin + tool radius (about 6 mm here), which leaves round corners on the stock. To keep them sharp, make `outer` the exact stock rectangle (5 mm outside the board), **Buffer** it by the tool radius (1 mm for a 2 mm bit) with **round** corners, and run Cutout on that geometry with **Margin 0**. A cutout on a *Geometry* object cuts on the shape itself, so the path corners come out at 1 mm radius and the stock corners stay square.
+**Outer corners:** a rectangular cutout rounds the stock's corners by the margin (about 5 mm here). For small fillets, draw `outer` as a **Gerber** of the exact stock shape (5 mm outside the board, corners filleted 1 mm) and run Cutout on it with **Margin 0**. On a Gerber, FlatCAM keeps the tool outside the shape (path = shape + tool radius), so the stock keeps its 1 mm fillets. Don't use a Geometry for this: a cutout on a Geometry runs the tool *on* the line, so it can't tell the inside from the outside and the fillet ends up on the tool path instead of the stock.
 
 ### STEP 7 - Generate Isolate Geometry
 
@@ -390,7 +390,7 @@ I now run all of section 6 from a script instead of by hand. It is not published
    - Copper isolation: 0.1 mm, 8 passes, 60 % overlap, combined, exported as SVG with the mask and silk layers.
    - Drills: all tools in one G-code file with tool changes (Cut Z -1.7 mm).
    - Edge cutout: 2 mm bit, 0.1 mm outside the line centre, 2 × 1 mm deep, tabs top and bottom.
-   - Stock (`outer`): rectangle 5 mm outside the board, path corners 1 mm radius, same bit and tabs; also exported as an SVG for the paper jig.
+   - Stock (`outer`): rectangle 5 mm outside the board with 1 mm corner fillets, written as a Gerber and cut with the same bit and tabs; the same outline is exported as an SVG for the paper jig.
    - Alignment pins: four 1 mm holes 2 mm outside the board corners, 8 mm deep.
    - Saves a FlatCAM project of all of it.
 2. The laser job is built without BslAppSimple's import steps: the layer SVGs are merged, `outer` is offset -0.1 mm, masks and silk are hatched (margins -0.2 and 0.0 mm), pens 0-3 are set with the names and settings above, and the result is written straight to a BslAppSimple `.orzx` file centred on the origin.
