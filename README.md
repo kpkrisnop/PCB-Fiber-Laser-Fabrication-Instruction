@@ -383,7 +383,7 @@ Assign each layer to its pen (settings in [My Settings](#my-settings)):
 
 ### Automated route (my setup)
 
-I now run all of section 6 from a script instead of by hand. It is not published here, but this is what it does, so you can check the manual steps against it:
+I now run all of section 6 with one command instead of by hand: `pcb_cam/pcb-cam <KiCad gbr folder>` (the scripts are in [`pcb_cam/`](pcb_cam/)). This is what it does, so you can check the manual steps against it:
 
 1. FlatCAM Evo runs headless (`flatcam --headless`, Tcl commands on stdin), on the KiCad Gerber folder:
    - Moves the board so the Edge_Cuts **line centre** sits at (10, 10). The line width is read from the Edge_Cuts aperture, not assumed.
@@ -394,9 +394,9 @@ I now run all of section 6 from a script instead of by hand. It is not published
    - Tabs: one per side, or two per side when that side is longer than 80 mm.
    - Alignment pins: four 1 mm holes 3 mm outside the board corners (in x and y), 8 mm deep.
    - Saves a FlatCAM project of all of it.
-2. The laser job is built without BslAppSimple's import steps: the layer SVGs are merged, `outer` is offset -0.1 mm, masks and silk are hatched (margins -0.2 and 0.0 mm), pens 0-3 are set with the names and settings above, and the result is written straight to a BslAppSimple `.orzx` file centred on the origin.
+2. The laser job is built without BslAppSimple's import steps: the layer SVGs are merged, `outer` is offset -0.1 mm, masks and silk are hatched (margins -0.2 and 0.0 mm), pens 0-3 are set with the names and settings above, and the result is written straight to a BslAppSimple `.orzx` file centred on the origin. This step uses my LaserCraft tool (`lasercraft job`), which is not public yet, so without it `pcb-cam` stops after the FlatCAM files and you load the SVGs into BslAppSimple as in section 6.
 
-The whole run takes about 10 seconds per board.
+The whole run takes about 6 seconds per board.
 
 ## 7. Operation
 
@@ -476,7 +476,7 @@ The whole run takes about 10 seconds per board.
 - MacOS: [Open Download Page](https://github.com/tomoyanonymous/homebrew-flatcam) _In MacOS, I experienced minor bugs in the program, specifically in `flatcam-evo`. Nevertheless, I quickly debugged using the error messages in the program and fixed these bugs using AI (e.g. Gemini, ChatGPT, Claude)._
 - FlatCAM Evo (upstream, recommended): [Open](https://github.com/MariusAdrian88/FlatCAM_Evo). Version 1.0x fixes most of the macOS bugs I used to patch, has real undo, and is much faster.
 - My Homebrew tap for macOS: [Open](https://github.com/kpkrisnop/homebrew-flatcam-evo)
-- My older improved version (FlatCAM 8.9 fork, kept for reference): [Open](https://github.com/kpkrisnop/flatcam)
+- My older improved version (FlatCAM 8.9 fork, archived, superseded by Evo 1.0x): [Open](https://github.com/kpkrisnop/flatcam)
 
 ### BslAppSimple
 

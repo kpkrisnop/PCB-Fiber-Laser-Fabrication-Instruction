@@ -1,0 +1,18 @@
+#!/bin/sh
+# Usage: pcb-orzx <cam folder>   (the folder pcb-cam wrote)  ->  <cam folder>/<board>.orzx
+# LaserCraft's native `lasercraft job`, no VectorCraft: picks the steps by layer name (outer inset
+# 0.1 mm on pen 3, copper as drawn on pen 0, silk hatched margin 0 on pen 1, masks hatched margin
+# -0.2 mm on pen 2) and writes the .orzx with the pens below. Also writes <board>.laser.svg, the
+# layers merged into one SVG, for a look before marking.
+set -e
+CAM=$(cd "$1" && pwd)
+LC=${LASERCRAFT:-"$HOME/Library/CloudStorage/GoogleDrive-krisnop@sakongroup.net/My Drive/KP/LaserCraft"}
+BIN="$LC/target/release"
+[ -x "$BIN/lasercraft" ] || cargo build -q --release --manifest-path "$LC/Cargo.toml" -p lasercraft-cli -p orzx
+BASE=$(basename "$(ls "$CAM"/*-outer.svg | head -1)" -outer.svg)
+# Pens from this guide's "My Settings" (silk = mask per KP):
+# 0 copper 100 % 1000 mm/s 20 kHz, 1 silk and 2 mask 50 % 1000 mm/s 40 kHz, 3 paper 100 % 100 mm/s 30 kHz.
+PENS='"p0_name":"copper","p1_name":"silk","p2_name":"mask","p3_name":"paper","p0_power":100,"p0_speed":1000,"p0_freq":20,"p1_power":50,"p1_speed":1000,"p1_freq":40,"p2_power":50,"p2_speed":1000,"p2_freq":40,"p3_power":100,"p3_speed":100,"p3_freq":30'
+"$BIN/lasercraft" job "$CAM/$BASE"-*.svg -o "$CAM/$BASE.orzx" --params "{$PENS}"
+"$BIN/lasercraft" merge "$CAM/$BASE"-*.svg -o "$CAM/$BASE.laser.svg" >/dev/null
+"$BIN/orzx" layers "$CAM/$BASE.orzx"

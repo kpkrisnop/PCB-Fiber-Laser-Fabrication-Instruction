@@ -1,0 +1,40 @@
+#!/bin/sh
+# Usage: pcb-cam <kicad gbr folder> [out folder]   e.g. pcb-cam .../wooding_clock_pcb_kp/gbr
+# Runs pcb_cam.tcl in FlatCAM Evo headless, then pcb-orzx for the laser job; quiet unless something fails.
+set -e
+GBR=$(cd "$1" && pwd)
+OUT=${2:-$GBR/../cam}
+mkdir -p "$OUT"; OUT=$(cd "$OUT" && pwd)
+EDGE=$(ls "$GBR"/*-Edge_Cuts.gbr | head -1)
+BASE=$(basename "$EDGE" -Edge_Cuts.gbr)
+LOG="$OUT/pcb-cam.log"
+# Round every drill to KP's bits (0.6-1.5 mm in 0.1 steps) and merge tools that land on the same bit,
+# so near-identical sizes (KiCad's PTH/NPTH 1.0 + 1.0, or 1.001/1.002) don't each get a tool change.
+python3 - "$GBR/$BASE.drl" "$OUT/$BASE-bits.drl" <<'EOF'
+import re, sys
+src, dst = sys.argv[1:]
+text = open(src).read()
+if re.search(r'^INCH', text, re.M):
+    sys.exit("pcb-cam: drill file is in inches; export it in mm")
+bit, new, out = {}, {}, []          # old tool -> rounded dia, rounded dia -> new tool number
+for line in text.splitlines():
+    m = re.fullmatch(r'T(\d+)C([\d.]+)(.*)', line)
+    if m:
+        d = round(float(m[2]) * 10) / 10
+        if not 0.6 <= d <= 1.5:
+            print(f"pcb-cam: WARNING drill {m[2]} mm rounds to {d} mm, outside your 0.6-1.5 mm bits")
+        bit[m[1]] = d
+        if d not in new:
+            new[d] = len(new) + 1
+            out.append(f"T{new[d]}C{d:.3f}{m[3]}")
+        continue
+    m = re.fullmatch(r'T(\d+)', line)
+    out.append(f"T{new[bit[m[1]]]}" if m and m[1] in bit else line)
+open(dst, "w").write("\n".join(out) + "\n")
+print(f"drills: {len(bit)} tools -> {len(new)} bits ({', '.join(f'{d:.1f}' for d in new)} mm)")
+EOF
+{ printf 'set GBR {%s}\nset BASE {%s}\nset OUT {%s}\n' "$GBR" "$BASE" "$OUT"
+  cat "$(dirname "$0")/pcb_cam.tcl"; } | ${FLATCAM:-flatcam} --headless >"$LOG" 2>&1 || { tail -20 "$LOG"; exit 1; }
+grep -E '^PCB_CAM DONE|ERROR' "$LOG" || true
+"$(dirname "$0")/pcb-orzx" "$OUT" >/dev/null && echo "orzx: $OUT/$BASE.orzx"
+ls "$OUT"
