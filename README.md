@@ -60,7 +60,7 @@ The fabrication process involves the following key stages:
 ### Software (My case)
 
 - **PCB Designing Software:** KiCad 9.0
-- **CAM Software:** FlatCAM 8.9
+- **CAM Software:** FlatCAM Evo 1.02 (upstream [MariusAdrian88/FlatCAM_Evo](https://github.com/MariusAdrian88/FlatCAM_Evo))
 - **Fiber Laser Software:** BslAppSimple 5.2
 - **CNC Router Software:** Mach3
 
@@ -109,17 +109,19 @@ The fabrication process involves the following key stages:
 
 ## My Settings
 
-| Pen No. | Name    | Power (%) | Speed (mm/s) | Frequency (kHz) |
-| ------- | ------- | --------- | ------------ | --------------- |
-| 1       | isolate | 100       | 1000         | 20              |
-| 2       | paper   | 100       | 100          | 30              |
-| 3       | mask    | 50        | 1000         | 40              |
+| Pen No. | Name   | Power (%) | Speed (mm/s) | Frequency (kHz) |
+| ------- | ------ | --------- | ------------ | --------------- |
+| 0       | copper | 100       | 1000         | 20              |
+| 1       | silk   | 50        | 1000         | 40              |
+| 2       | mask   | 50        | 1000         | 40              |
+| 3       | paper  | 100       | 100          | 30              |
 
 ## 5. Software Setup
 
 - **KiCAD:** Before start designing the PCB, import my design rules into you KiCAD project by going to **File > Board Setup... > Import Settings from Another Board...** find the KiCAD file and **Sellect All**, then **Import Settings**. [Download My Design Rules](KiCAD_Custom_DRC_Rules_for_KPPCB)
 - **FlatCam:**
   - Import my tools database by going to **Options > Tools Database > Import DB**. [Download My Tools Database](flatcam_tools_database)
+    - **FlatCAM Evo 1.0x:** this file was saved by FlatCAM 8.9 and 1.0x rejects every tool in it, because `tools_mill_f_plunge` is `0.0` where 1.0x wants `false`. Replace `"tools_mill_f_plunge": 0.0` with `"tools_mill_f_plunge": false` in a copy of the file, then import the copy.
   - Show all tools by right-click on the tool bar and select all the tools.
 
 ## 6. File Preparation
@@ -174,6 +176,8 @@ Then click **Generate**
    <img src="images/flatcam_convert.png" alt="FlatCAM Follow Edge Cuts" width="480" style="border-radius: 10px;">
 
    You will get a filled shape named `Edge_Cuts_follow_conv`. Then, **Delete** `Edge_Cuts.gbr` and `Edge_Cuts_follow`.
+
+**FlatCAM Evo 1.0x:** skip the Follow and Convert steps. In STEP 6, run the **Cutout** plugin straight on `Edge_Cuts.gbr` with **Source is board outline** and **Cut inside contours**. FlatCAM measures the margin from the *outer edge* of the Edge_Cuts line, not its centre, so set **Margin = 0.1 mm − half the line width**: `0.05` for a 0.1 mm line, `0.075` for a 0.05 mm line (KiCad's default on newer boards). That puts the cut 0.1 mm outside the KiCad line centre.
 
 ### STEP 3 - Board Placement
 
@@ -241,6 +245,8 @@ Then click **Generate**
 4. Do the same to `outer`
 5. At the end, you should have 2 toolpath geometries: `Edge_Cuts_follow_conv_cutout` and `outer_cutout`.
 
+**Sharper outer corners:** a rectangular cutout rounds the tool path's corners by margin + tool radius (about 6 mm here), which leaves round corners on the stock. To keep them sharp, make `outer` the exact stock rectangle (5 mm outside the board), **Buffer** it by the tool radius (1 mm for a 2 mm bit) with **round** corners, and run Cutout on that geometry with **Margin 0**. A cutout on a *Geometry* object cuts on the shape itself, so the path corners come out at 1 mm radius and the stock corners stay square.
+
 ### STEP 7 - Generate Isolate Geometry
 
 1. Click on **Isolate** plugin to create laser toolpath geometry for `F_Copper.gbr`
@@ -249,7 +255,7 @@ Then click **Generate**
 
    My settings:
    - **`Diameter`**: `0.1000mm`
-   - **`Passes`**: `7`
+   - **`Passes`**: `8`
    - **`Overlap`**: `60.0000%`
 
 2. Click **Generate Geometry**
@@ -354,6 +360,7 @@ Then click **Generate**
 
 3. **Rename** it `F_mask`
 4. Click **OK**. Then, do the same for `B_mask`.
+5. Hatch `F_silkscreen` and `B_silkscreen` the same way, with the same settings except **`Margins`**: `0.0mm`.
 
 ### STEP 3 - Offset
 
@@ -364,6 +371,31 @@ Then click **Generate**
 ### STEP 4 - Save
 
 1. Save the file
+
+### Pens
+
+Assign each layer to its pen (settings in [My Settings](#my-settings)):
+
+- `F_Copper_iso_combined`, `B_Copper_iso_combined` → **Pen 0** `copper`
+- `F_silkscreen`, `B_silkscreen` → **Pen 1** `silk`
+- `F_mask`, `B_mask` → **Pen 2** `mask`
+- `outer` → **Pen 3** `paper`
+
+### Automated route (my setup)
+
+I now run all of section 6 from a script instead of by hand. It is not published here, but this is what it does, so you can check the manual steps against it:
+
+1. FlatCAM Evo runs headless (`flatcam --headless`, Tcl commands on stdin), on the KiCad Gerber folder:
+   - Moves the board so the Edge_Cuts **line centre** sits at (10, 10). The line width is read from the Edge_Cuts aperture, not assumed.
+   - Copper isolation: 0.1 mm, 8 passes, 60 % overlap, combined, exported as SVG with the mask and silk layers.
+   - Drills: all tools in one G-code file with tool changes (Cut Z -1.7 mm).
+   - Edge cutout: 2 mm bit, 0.1 mm outside the line centre, 2 × 1 mm deep, tabs top and bottom.
+   - Stock (`outer`): rectangle 5 mm outside the board, path corners 1 mm radius, same bit and tabs; also exported as an SVG for the paper jig.
+   - Alignment pins: four 1 mm holes 2 mm outside the board corners, 8 mm deep.
+   - Saves a FlatCAM project of all of it.
+2. The laser job is built without BslAppSimple's import steps: the layer SVGs are merged, `outer` is offset -0.1 mm, masks and silk are hatched (margins -0.2 and 0.0 mm), pens 0-3 are set with the names and settings above, and the result is written straight to a BslAppSimple `.orzx` file centred on the origin.
+
+The whole run takes about 10 seconds per board.
 
 ## 7. Operation
 
@@ -441,7 +473,9 @@ Then click **Generate**
 - Website: [Open](http://flatcam.org/download)
 - Windows: [Open Download Page](https://bitbucket.org/jpcgt/flatcam/downloads/)
 - MacOS: [Open Download Page](https://github.com/tomoyanonymous/homebrew-flatcam) _In MacOS, I experienced minor bugs in the program, specifically in `flatcam-evo`. Nevertheless, I quickly debugged using the error messages in the program and fixed these bugs using AI (e.g. Gemini, ChatGPT, Claude)._
-- My Improved Version: [Open Download Page](https://github.com/kpkrisnop/flatcam) (Recommended)
+- FlatCAM Evo (upstream, recommended): [Open](https://github.com/MariusAdrian88/FlatCAM_Evo). Version 1.0x fixes most of the macOS bugs I used to patch, has real undo, and is much faster.
+- My Homebrew tap for macOS: [Open](https://github.com/kpkrisnop/homebrew-flatcam-evo)
+- My older improved version (FlatCAM 8.9 fork, kept for reference): [Open](https://github.com/kpkrisnop/flatcam)
 
 ### BslAppSimple
 
