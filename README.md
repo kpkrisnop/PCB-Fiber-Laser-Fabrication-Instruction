@@ -389,8 +389,9 @@ I now run all of section 6 from a script instead of by hand. It is not published
    - Moves the board so the Edge_Cuts **line centre** sits at (10, 10). The line width is read from the Edge_Cuts aperture, not assumed.
    - Copper isolation: 0.1 mm, 8 passes, 60 % overlap, combined, exported as SVG with the mask and silk layers.
    - Drills: all tools in one G-code file with tool changes (Cut Z -1.7 mm).
-   - Edge cutout: 2 mm bit, 0.1 mm outside the line centre, 2 × 1 mm deep, tabs top and bottom.
-   - Stock (`outer`): rectangle 5 mm outside the board with 1 mm corner fillets, written as a Gerber and cut with the same bit and tabs; the same outline is exported as an SVG for the paper jig.
+   - Edge cutout: 2 mm bit, 0.1 mm outside the line centre, 2 × 1 mm deep, 3 mm tabs on the left and right sides.
+   - Stock (`outer`): rectangle 5 mm outside the board with 1 mm corner fillets, written as a Gerber and cut with the same bit, tabs on the top and bottom sides (so they never line up with the board's tabs); the same outline is exported as an SVG for the paper jig.
+   - Tabs: one per side, or two per side when that side is longer than 80 mm.
    - Alignment pins: four 1 mm holes 2 mm outside the board corners, 8 mm deep.
    - Saves a FlatCAM project of all of it.
 2. The laser job is built without BslAppSimple's import steps: the layer SVGs are merged, `outer` is offset -0.1 mm, masks and silk are hatched (margins -0.2 and 0.0 mm), pens 0-3 are set with the names and settings above, and the result is written straight to a BslAppSimple `.orzx` file centred on the origin.
