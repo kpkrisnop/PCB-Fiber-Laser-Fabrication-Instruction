@@ -388,7 +388,7 @@ I now run all of section 6 from a script instead of by hand. It is not published
 1. FlatCAM Evo runs headless (`flatcam --headless`, Tcl commands on stdin), on the KiCad Gerber folder:
    - Moves the board so the Edge_Cuts **line centre** sits at (10, 10). The line width is read from the Edge_Cuts aperture, not assumed.
    - Copper isolation: 0.1 mm, 8 passes, 60 % overlap, combined, exported as SVG with the mask and silk layers.
-   - Drills: all tools in one G-code file with tool changes (Cut Z -1.7 mm).
+   - Drills: every size is rounded to the nearest 0.1 mm (my bits are 0.6-1.5 mm in 0.1 mm steps) and tools that land on the same bit are merged, so KiCad's separate plated and non-plated 1.0 mm tools cost one tool change, not two. All tools go in one G-code file with tool changes (Cut Z -1.7 mm).
    - Edge cutout: 2 mm bit, 0.1 mm outside the line centre, 2 × 1 mm deep, 3 mm tabs on the left and right sides.
    - Stock (`outer`): rectangle 5 mm outside the board with 1 mm corner fillets, written as a Gerber and cut with the same bit, tabs on the top and bottom sides (so they never line up with the board's tabs); the same outline is exported as an SVG for the paper jig.
    - Tabs: one per side, or two per side when that side is longer than 80 mm.
