@@ -34,7 +34,7 @@ open(dst, "w").write("\n".join(out) + "\n")
 print(f"drills: {len(bit)} tools -> {len(new)} bits ({', '.join(f'{d:.1f}' for d in new)} mm)")
 EOF
 { printf 'set GBR {%s}\nset BASE {%s}\nset OUT {%s}\n' "$GBR" "$BASE" "$OUT"
-  cat "$(dirname "$0")/pcb_cam.tcl"; } | ${FLATCAM:-flatcam} --headless >"$LOG" 2>&1 || { tail -20 "$LOG"; exit 1; }
+  cat "$(dirname "$0")/pcb_cam.tcl"; } | ${FLATCAM:-/Applications/FlatCAM_EVO.app/Contents/MacOS/FlatCAM} --headless >"$LOG" 2>&1 || { tail -20 "$LOG"; exit 1; }
 grep -E '^PCB_CAM DONE|ERROR' "$LOG" || true
 "$(dirname "$0")/pcb-orzx" "$OUT" >/dev/null && echo "orzx: $OUT/$BASE.orzx"
 ls "$OUT"
