@@ -392,7 +392,7 @@ I now run all of section 6 with one command instead of by hand: `pcb_cam/pcb-cam
    - Edge cutout: 2 mm bit, 0.1 mm outside the line centre, 2 × 1 mm deep, 3 mm tabs on the left and right sides.
    - Stock (`outer`): rectangle 5 mm outside the board with 1 mm corner fillets, written as a Gerber and cut with the same bit, tabs on the top and bottom sides (so they never line up with the board's tabs); the same outline is exported as an SVG for the paper jig.
    - Tabs: one per side, or two per side when that side is longer than 80 mm.
-   - Alignment pins: four 1 mm holes 3 mm outside the board corners (in x and y), 8 mm deep.
+   - Alignment pins: four 0.8 mm holes 3 mm outside the board corners (in x and y), 8 mm deep.
    - Saves a FlatCAM project of all of it.
 2. The laser job is built without BslAppSimple's import steps: the layer SVGs are merged, `outer` is offset -0.1 mm, masks and silk are hatched (margins -0.2 and 0.0 mm), pens 0-3 are set with the names and settings above, and the result is written straight to a BslAppSimple `.orzx` file centred on the origin. This step uses my LaserCraft tool (`lasercraft job`), which is not public yet, so without it `pcb-cam` stops after the FlatCAM files and you load the SVGs into BslAppSimple as in section 6.
 

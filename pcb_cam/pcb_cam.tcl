@@ -66,10 +66,10 @@ set arc "A$r,$r 0 0 1"
 puts $fh "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"[expr {$c-$a}]mm\" height=\"[expr {$d-$b}]mm\" viewBox=\"$a [expr {-$d}] [expr {$c-$a}] [expr {$d-$b}]\"><g transform=\"scale(1,-1)\"><path fill=\"none\" stroke=\"#66cc99\" stroke-width=\"0.02\" d=\"M$ia,$b L$ic,$b $arc $c,$ib L$c,$id $arc $ic,$d L$ia,$d $arc $a,$id L$a,$ib $arc $ia,$b Z\"/></g></svg>"
 close $fh
 
-# Alignment pins: 1 mm, 8 mm deep (into the spoilboard), 3 mm outside each board corner.
+# Alignment pins: 0.8 mm, 8 mm deep (into the spoilboard), 3 mm outside each board corner.
 new_excellon pins
 foreach {x y} [list [expr {$x0-3}] [expr {$y0-3}] [expr {$x1+3}] [expr {$y0-3}] [expr {$x1+3}] [expr {$y1+3}] [expr {$x0-3}] [expr {$y1+3}]] {
-    add_drill pins -dia 1.0 -x $x -y $y
+    add_drill pins -dia 0.8 -x $x -y $y
 }
 drillcncjob pins -drillz -8 -travelz 2 -feedrate_z 200 -feedrate_rapid 1500 -endz 15 -pp default -outname pins_cnc
 write_gcode pins_cnc [file join $OUT "$BASE-pins.tap"]
