@@ -1,0 +1,44 @@
+---
+title: Overview
+description: How a bare copper board becomes a finished two-sided PCB.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+This guide makes **two-sided PCBs** with a **fiber laser** and a **CNC router**.
+
+<Aside type="caution" title="No plated holes">
+Holes are not plated, so nothing connects the top copper to the bottom copper. Rivets, a wire soldered through the hole, or soldering the part on the top side might work, but none of them has been tested yet.
+</Aside>
+
+## Process summary
+
+The board visits five stations in this order: **CNC → laser → bench → laser → CNC**. The hard part is putting it back in exactly the same place each time. See [Alignment](/machining/alignment/).
+
+![The board moves between the computer, the CNC, the laser and the paint bench](/diagrams/stages.svg)
+
+<Aside type="note" title="To draw">
+Replace this with an isometric drawing of how the board is lined up at each station: pins on the CNC, the paper jig on the laser.
+</Aside>
+
+| Main point | What happens | Who usually does it |
+| --- | --- | --- |
+| [2. Designing](/designing/design-rules/) | Draw the board in KiCad and export Gerbers | KP |
+| [3. Preparing](/preparing/install-skills/) | An agent checks the design and makes every machine file | KP, or you with your own agent |
+| [4. Machining](/machining/alignment/) | Run the files on the CNC and the laser | You |
+
+## Prerequisites
+
+- A board designed in KiCad with [KP's design rules](/designing/design-rules/).
+- The [software installed](/reference/install-software/) and [set up](/reference/software-setup/).
+- The [tools and materials](/reference/requirements/).
+- A calibrated laser: [pen settings](/reference/pen-settings/) saved from the [calibration test](/reference/laser-calibration/).
+- You can run the fiber laser in BslAppSimple and the CNC in Mach3.
+
+<Aside type="danger" title="Laser on, goggles on">
+The beam is invisible. Read [Safety](/reference/safety/) before you use the laser.
+</Aside>
+
+## Reference video
+
+[Homemade PCBs with Fiber Laser - 0.1mm Clearance (Electronoobs)](https://www.youtube.com/watch?v=PoYcjyghDx4)
